@@ -236,6 +236,11 @@ ScoreLibrary.Score.ElementTunnel.prototype.updateKeyManager = function(states) {
 
 ScoreLibrary.Score.ElementTunnel.prototype.registerNoteAccidental =
     function(note) {
+        return this.registerNoteAccidentalRepaired(note)
+    }
+
+ScoreLibrary.Score.ElementTunnel.prototype.registerNoteAccidentalOriginal =
+    function(note) {
 
         do {
 
@@ -290,6 +295,138 @@ ScoreLibrary.Score.ElementTunnel.prototype.registerNoteAccidental =
             }
         } while (false);
 
+        return note.accidental_registered;
+    };
+
+ScoreLibrary.Score.ElementTunnel.prototype.debug =
+    function(msg) {
+        // console.log(msg);
+    };
+
+ScoreLibrary.Score.ElementTunnel.prototype.skipBecauseIsTiedAndNotFirst =
+    function(note) {
+        var tied_connectors = note.getConnectors('tied');
+        var SKIP = true;
+        var DONT_SKIP = false;
+        if (!tied_connectors) {
+            return DONT_SKIP;  // don't skip, not notated as tied
+        }
+
+        var starts = $.grep(tied_connectors, function(e){ return e.type == 'start'; });
+        var stops = $.grep(tied_connectors, function(e){ return e.type == 'stop'; });
+        var conts = $.grep(tied_connectors, function(e){ return e.type == 'continue'; });
+
+        // notated as tied, does it need an accidental?
+        if (starts.length >= 0
+            && stops.length === 0
+            && conts.length === 0) {
+            return DONT_SKIP;
+        }
+        return SKIP;
+    };
+
+ScoreLibrary.Score.ElementTunnel.prototype.registerNoteAccidentalRepaired =
+    function(note) {
+        do {
+            var acc = "none";
+            var iscautionary = false;
+            var no_accidental = false;
+            var pitch = note.getPitch();
+
+            //this.debug("ElementTunnel.registerNoteAccidental: " + JSON.stringify(pitch, null, 2));
+            this.debug(note.step + " "
+                        + (pitch.alter === 0
+                           ? "natural" : (pitch.alter === 1 ? "sharp" : (pitch.alter === -1  ? "flat" : "other"))));
+
+            if (note.no_accidental || !pitch) {
+                this.debug("1. Note without accidental or without pitch" );
+                break;
+            }
+
+            if (this.skipBecauseIsTiedAndNotFirst(note)) {
+                break;
+            }
+
+            //this.debug("3. Note without accidental and in key manager?" );
+            if (this.key_manager) {
+
+                if (!pitch.octave_shift) {
+
+                    if (this.key_manager.exist(pitch, note.getStaffNumber())) {
+                        this.debug("3.1 in the key signature");
+                        if (!note.accidental /* || !note.accidental.cautionary */ ) {
+
+                            this.debug("3.2 in key and no explicit or cautionary accidental: skip");
+                            break;
+                        }
+                    } else {
+                        this.debug("3.3 not in key signature");
+                    }
+                }
+            }
+
+            //this.debug("4. Note has explicit accidental?" );
+            if (note.accidental) {
+                this.debug("4. Note has explicit " + note.accidental.accidental );
+                //this.debug("explicit accidental: add note.accidental_registered");
+
+                note.accidental_registered =
+                    new ScoreLibrary.Score.Accidental(
+                        note.accidental, note.getStaff(),
+                        undefined, note.isGrace());
+
+                if (!pitch.octave_shift && this.key_manager) {
+                    this.debug("4.1 no octave shift, register with key manager");
+                    this.key_manager.register(pitch, note.getStaffNumber());
+                }
+                break;
+            }
+
+            //this.debug("5. Note has pitch alter?" );
+            if (pitch.alter) {
+                this.debug("5. Note has pitch alter" );
+                //this.debug("no explicit accidental, have pitch.alter: add accidental_registered");
+
+                note.accidental_registered =
+                    new ScoreLibrary.Score.Accidental(
+                        undefined, note.getStaff(),
+                        pitch.alter, note.isGrace());
+
+                if (!pitch.octave_shift && this.key_manager) {
+                    //this.debug("no octave shift, register with key manager");
+                    this.key_manager.register(pitch, note.getStaffNumber());
+                }
+                break;
+            }
+
+
+            //this.debug("6. Key manager needs natural?" );
+            if (this.key_manager &&
+                this.key_manager.needNatural(
+                    pitch, note.getStaffNumber())) {
+                this.debug("6. Key manager needs natural" );
+                //this.debug("key_manager needs natural: add accidental_registered, key_manager.naturalIt");
+
+                note.accidental_registered =
+                    new ScoreLibrary.Score.Accidental(
+                        undefined, note.getStaff(), 0, note.isGrace());
+
+                this.key_manager.naturalIt(pitch, note.getStaffNumber());
+
+                if (!pitch.octave_shift && this.key_manager) {
+                    //this.debug("no octave shift, register with key manager");
+                    this.key_manager.register(pitch, note.getStaffNumber());
+                }
+                break;
+            }
+
+        } while (false);
+
+        if (note.accidental_registered) {
+            this.debug("=== Done: registered " + note.step + " " + note.accidental_registered.accidental + " ===" );
+        } else {
+            this.debug("=== Done: registered " + "none" + " ===" );
+        }
         return note.accidental_registered;
     };
 

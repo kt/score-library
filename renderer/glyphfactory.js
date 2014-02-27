@@ -8,7 +8,8 @@ goog.require('goog.asserts');
 /**
  * @constructor
  */
-ScoreLibrary.Renderer.GlyphFactory = function() {
+ScoreLibrary.Renderer.GlyphFactory = function(context) {
+    this.context = context;
 };
 
 ScoreLibrary.Renderer.GlyphFactory.prototype.addFont = function(font) {

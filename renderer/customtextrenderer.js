@@ -44,7 +44,7 @@ ScoreLibrary.Renderer.CustomTextRenderer.prototype.getGlyphFactory =
         if (this.glyph_factory === undefined) {
 
             this.glyph_factory =
-                new ScoreLibrary.Renderer.GlyphFactory();
+                new ScoreLibrary.Renderer.GlyphFactory(this.context);
         }
 
         return this.glyph_factory;

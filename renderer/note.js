@@ -33,13 +33,25 @@ ScoreLibrary.Renderer.Note.prototype.clone = function(clone) {
 };
 
 ScoreLibrary.Renderer.Note.prototype.draw = function(context) {
-
     var supperclass = ScoreLibrary.Renderer.Note.supperclass;
-
-    supperclass.draw.call(this, context);
-
     var note = this.getModel();
     var clef = note.getClef();
+
+    if (note.accidental === undefined
+        && this.children[0].glyph_name.lastIndexOf('accidentals.', 0) == 0) {
+        context.save();
+        context.setSourceRgb('#ff0000');
+        supperclass.draw.call(this, context);
+        context.restore();
+    } else if (note.accidental !== undefined
+               && this.children[0].glyph_name.lastIndexOf('accidentals.', 0) === -1) {
+        context.save();
+        context.setSourceRgb('#0000ff');
+        supperclass.draw.call(this, context);
+        context.restore();
+    } else {
+        supperclass.draw.call(this, context);
+    }
 
     if (clef.sign !== 'TAB') {
 
@@ -392,12 +404,19 @@ ScoreLibrary.Renderer.Note.prototype.drawLedgerLines = function(context) {
             note.getStemDirection();
 
         var line_width = staff.getLineWidth();
+        if (context.score_div.div_node.attr('ledger_line_thickness')) {
+            line_width *= 1.5;
+        }
 
         context.setLineWidth(line_width);
 
         var x0 = -line_width;
-
         var x1 = note_head_width + line_width;
+
+        if (context.score_div.div_node.attr('ledger_line_width')) {
+            x0 = -note_head_width * 0.3;
+            x1 = note_head_width * 1.3;
+        }
 
         var ledger_line_count = note.getLedgerLineCount();
 

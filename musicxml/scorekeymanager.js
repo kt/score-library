@@ -15,6 +15,10 @@ ScoreLibrary.Score.KeyManager.prototype.clone = function(clone) {
     return ScoreLibrary.copyAttributes(clone, this);
 };
 
+ScoreLibrary.Score.KeyManager.prototype.debug = function(msg) {
+    //console.log(msg);
+};
+
 ScoreLibrary.Score.KeyManager.prototype.reset = function() {
 
     var keys = ScoreLibrary.keys(this, /^\d+/);
@@ -71,6 +75,10 @@ ScoreLibrary.Score.KeyManager.prototype.keyNaturalIt = function(pitch, staff) {
 };
 
 ScoreLibrary.Score.KeyManager.prototype.register = function(pitch, staff) {
+    return this.registerRepaired(pitch, staff)
+};
+
+ScoreLibrary.Score.KeyManager.prototype.registerOriginal = function(pitch, staff) {
 
     staff = staff || 1;
 
@@ -100,6 +108,65 @@ ScoreLibrary.Score.KeyManager.prototype.register = function(pitch, staff) {
 
     return true;
 };
+
+ScoreLibrary.Score.KeyManager.prototype.registerRepaired = function(pitch, staff) {
+
+    staff = staff || 1;
+
+    var prop = '';
+
+    prop += pitch.getSteps();
+    prop += staff;
+
+    if (!pitch.alter) {
+        /* IGNORE */
+
+        this.debug("A. KeyManager.register: pitch is natural (pretend to add): ret true");
+        this.debug("A. KeyManager.register: natural " + pitch.getSteps() + "_" + staff + " step=" + pitch.step );
+
+        if (this[prop] !== undefined) {
+            this.debug("A.1 KeyManager.register: pitch was already registered with alter = " + this[prop]);
+
+            if (this[prop] === 0) {
+                this.debug("A.2 KeyManager.register: pitch is natural and natural sign already in place");
+                return true;
+            }
+
+            this.debug("A.3 KeyManager.register: pitch was already registered with alter = " + this[prop] + " replaced with natural" );
+
+            this[prop] = 0;
+            this.debug("prop.value :" + this[prop]);
+        } else {
+            this.debug("A.4 KeyManager.register: pitch not registered");
+            this[prop] = 0;
+        }
+        return true;
+    }
+
+    if (this.keyDescriptIt(pitch, staff)) {
+        this.debug("B. KeyManager.register: already in key sig (not adding): ret false");
+        return false;
+    }
+
+    var alter = this[prop];
+
+    if (alter === pitch.alter) {
+
+        return false;
+    }
+
+    this.debug("C. KeyManager.register: " + pitch.getSteps() + "_" + staff + " step=" + pitch.step + " alter=" + pitch.alter);
+    this[prop] = pitch.alter;
+
+    return true;
+};
+
+ScoreLibrary.Score.KeyManager.prototype.dump = function() {
+    var keys = ScoreLibrary.keys(this, /^\d+/);
+
+    keys.forEach(function(key) {
+    }, this);
+}
 
 ScoreLibrary.Score.KeyManager.prototype.exist = function(pitch, staff) {
 

@@ -125,7 +125,7 @@ ScoreLibrary.Renderer.Glyph.prototype.drawOutline = function(context) {
 
         return;
     }
-
+    var scale = 1.0;
     var length = outline.length;
 
     for (var i = 0; i < length; ) {
@@ -136,32 +136,32 @@ ScoreLibrary.Renderer.Glyph.prototype.drawOutline = function(context) {
 
         case 'm': {
 
-            context.moveTo(outline[i++], outline[i++]);
+            context.moveTo(outline[i++] * scale, outline[i++] * scale);
         } break;
 
         case 'l': {
 
-            context.lineTo(outline[i++], outline[i++]);
+            context.lineTo(outline[i++] * scale, outline[i++] * scale);
         } break;
 
         case 'q': {
 
-            var cpx = outline[i++];
-            var cpy = outline[i++];
+            var cpx = outline[i++] * scale;
+            var cpy = outline[i++] * scale;
 
             context.quadraticCurveTo(
-                outline[i++], outline[i++],
+                outline[i++] * scale, outline[i++] * scale,
                 cpx, cpy);
         } break;
 
         case 'b': {
 
-            var x = outline[i++];
-            var y = outline[i++];
+            var x = outline[i++] * scale;
+            var y = outline[i++] * scale;
 
             context.bezierCurveTo(
-                outline[i++], outline[i++],
-                outline[i++], outline[i++],
+                outline[i++] * scale, outline[i++] * scale,
+                outline[i++] * scale, outline[i++] * scale,
                 x, y);
         } break;
 
@@ -181,7 +181,7 @@ ScoreLibrary.Renderer.Glyph.prototype.draw = function(context) {
 
     context.setLineWidth(1);
 
-    context.setSourceRgb('#000000');
+    //context.setSourceRgb('#000000');
 
     context.beginPath();
 

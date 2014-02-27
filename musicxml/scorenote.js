@@ -84,7 +84,7 @@ ScoreLibrary.Score.Note.prototype.typeToFlagGlyphName =
         return glyph_name;
     };
 
-ScoreLibrary.Score.Note.prototype.isGreateThanHalf = function() {
+ScoreLibrary.Score.Note.prototype.isGreaterThanHalf = function() {
 
     return (this.getType() && /whole/.test(this.getType()));
 };

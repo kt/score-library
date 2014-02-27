@@ -9,8 +9,8 @@ ScoreLibrary.Engraver = ScoreLibrary.Engraver || {};
  */
 ScoreLibrary.Engraver.Constants = {
 
-    density: 1.6,
-    sparsity: 1.7
+    density: 1.6,  // accumulate_system_length += align_width * density;
+    sparsity: 2.0 // was 1.7
 };
 
 /**

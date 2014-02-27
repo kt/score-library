@@ -12,8 +12,11 @@ goog.require('ScoreLibrary.Score.Source');
  */
 ScoreLibrary.ScoreDiv =
     function(div_node, musicxml_file, is_standalone, show_toolbar) {
+        this.id = ScoreLibrary.ScoreDiv.nextID;
+        ScoreLibrary.ScoreDiv.nextID++;
+        
+        this.div_node = div_node;
 
-        this.initContextCache(div_node);
 
         this.musicxml_ref = this.div_node.attr('musicxml_ref') || '';
 
@@ -25,26 +28,30 @@ ScoreLibrary.ScoreDiv =
 
         this.createToolbar();
 
+        this.createGPToolbar();
+
+        this.initContextCache(div_node);
+
         this.asyncGetScore();
     };
 
 ScoreLibrary.ScoreDiv.prototype.initContextCache = function(div_node) {
 
-    this.div_node = div_node;
-
     this.canvas_node = $('<canvas/>');
 
     this.canvas_node.css({
 
-            'position': 'absolute',
-            'left': 0,
-            'top': 0
+            //'position': 'absolute',
+            //'left': 0,
+            //'top': 0
         });
 
     this.canvas_node.appendTo(this.div_node);
 
     this.draw_context =
         new ScoreLibrary.Renderer.PaintContext.Canvas(this.canvas_node);
+
+    this.draw_context.score_div = this;
 
     this.custom_renderer = this.draw_context.getCustomTextRenderer();
 
@@ -91,6 +98,8 @@ ScoreLibrary.ScoreDiv.prototype.getPageContext =
             page_context =
                 new ScoreLibrary.Renderer.PaintContext.Canvas($('<canvas/>'));
 
+            page_context.score_div = this;
+
             page_context.resize(
                 this.getContextWidth(), this.getContextHeight());
 
@@ -126,6 +135,8 @@ ScoreLibrary.ScoreDiv.prototype.getToolbarHeight = function() {
 };
 
 ScoreLibrary.ScoreDiv.prototype.showToolbar = function() {
+    //return;
+    //this.toolbar_node.css('display', 'block');
 
     if (!(!this.is_standalone && !this.show_toolbar && !this.hasNextPage())) {
 
@@ -258,6 +269,58 @@ ScoreLibrary.ScoreDiv.prototype.createDialog =
         return dialog_node;
     };
 
+function baseName(str) {
+   var base = new String(str).substring(str.lastIndexOf('/') + 1);
+    //if(base.lastIndexOf(".") != -1)       
+    //   base = base.substring(0, base.lastIndexOf("."));
+   return base;
+}
+
+ScoreLibrary.ScoreDiv.prototype.createGPToolbar = function() {
+    if (this.gp_toolbar_node) {
+        return;
+    }
+    
+    var self = this;
+    var currentFileName = baseName(this.musicxml_ref);
+    if (currentFileName == '') {
+        currentFileName = 'click to load a file';
+    }
+    
+    var button_div = $('<div class="btn btn-primary" id="loadBtn' + this.id + '">' + currentFileName + '</div>');
+    button_div.click(function() {
+        document.getElementById("upfile" + self.id).click();
+    });
+
+    var input_div = $('<div style="height: 0px;width: 0px; overflow:hidden;"></div>');
+    var input_node = $('<input id="upfile' + self.id + '" type="file" value="upload/>"'
+                       + '</div>');
+
+    input_node.change(function() {
+        //alert(($(this))[0].files[0].name + " was " + self.musicxml_ref);
+        var files = ($(this))[0].files;
+        if (files.length !== 1) {
+            return;
+        }
+        self.musicxml_file = files[0];
+        self.musicxml_ref = self.musicxml_file.name;
+        var currentFileName = baseName(self.musicxml_ref);
+        if (currentFileName == '') {
+            currentFileName = 'click to load a file';
+        }
+
+        document.getElementById("loadBtn" + self.id).innerHTML = currentFileName;
+        self.asyncGetScore();
+    });
+    input_div.append(input_node);
+
+    this.gp_toolbar_node = $('<div></div>');
+    this.gp_toolbar_node.append(button_div);
+    this.gp_toolbar_node.append(input_div);
+
+    this.gp_toolbar_node.appendTo(this.div_node);
+}
+
 ScoreLibrary.ScoreDiv.prototype.createToolbar = function() {
 
     if (!this.toolbar_node) {
@@ -276,8 +339,8 @@ ScoreLibrary.ScoreDiv.prototype.createToolbar = function() {
                 'right': 0,
                 'bottom': 0,
                 'font-family':
-                "'Trebuchet MS', 'Arial', '" +
-                    "''Helvetica', 'Verdana', 'sans-serif'",
+                "'Trebuchet MS', 'Arial', " +
+                    "'Helvetica', 'Verdana', 'sans-serif'",
                 'padding': '0px 4px'
             });
 
@@ -744,6 +807,8 @@ ScoreLibrary.ScoreDiv.divClass = '.score-div';
 
 ScoreLibrary.ScoreDiv.divList = null;
 
+ScoreLibrary.ScoreDiv.nextID = 0;
+
 ScoreLibrary.ScoreDiv.initialize = function() {
 
     ScoreLibrary.ScoreDiv.divList =
@@ -754,6 +819,8 @@ ScoreLibrary.ScoreDiv.initialize = function() {
 };
 
 $(ScoreLibrary.ScoreDiv.initialize);
+
+
 /**
  * @author XiongWenjie <navigator117@gmail.com>
  * @license This file is part of

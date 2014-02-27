@@ -188,11 +188,18 @@ ScoreLibrary.delegate = function(target, source) {
     ScoreLibrary.aggregate(target, ScoreLibrary.Delegate);
 
     var functor_generator = function(functor) {
-
         return function() {
+            if (!functor) {
+                alert("die functor");
+            }
+            if (!this) {
+                alert("die this");
+            }
 
-            return functor.apply(
-                this.getDelegate(), arguments);
+            if (!this.getDelegate()) {
+                alert("die delegate")
+            }
+            return functor.apply(this.getDelegate(), arguments);
         };
     };
 

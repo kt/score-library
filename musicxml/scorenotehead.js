@@ -24,7 +24,7 @@ ScoreLibrary.Score.NoteHead.prototype.clone = function(clone) {
 
 ScoreLibrary.Score.NoteHead.prototype.createRenderer = function(glyph_factory) {
 
-    var requisition = this.getDefaultSize();
+    var requisition = this.getDefaultSize(glyph_factory);
 
     var glyph =
         glyph_factory.createByName(
@@ -54,7 +54,7 @@ ScoreLibrary.Score.NoteHead.prototype.isUp = function() {
             ScoreLibrary.Renderer.Note.StemDirection.Up);
 };
 
-ScoreLibrary.Score.NoteHead.prototype.getDefaultSize = function() {
+ScoreLibrary.Score.NoteHead.prototype.getDefaultSize = function(glyph_factory) {
 
     var staff = this.getStaff();
 
@@ -68,8 +68,12 @@ ScoreLibrary.Score.NoteHead.prototype.getDefaultSize = function() {
     } break;
 
     default: {
+        if (glyph_factory.context && glyph_factory.context.score_div.div_node.attr('larger_accidental_fix')) {
+            requisition.height = staff.getHeightOfSpace() * 1.2;
+        } else {
+            requisition.height = staff.getHeightOfSpace();
+        }
 
-        requisition.height = staff.getHeightOfSpace();
     } break;
     }
 

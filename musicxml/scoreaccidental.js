@@ -117,7 +117,14 @@ ScoreLibrary.Score.Accidental.prototype.createRenderer =
             var glyph_height =
                 (glyph_name === 'accidentals.doublesharp' ?
                  this.staff.getHeightOfSpace() :
-                 this.staff.getHeightOfSpace() * 2);
+                 this.staff.getHeightOfSpace() * 2.0);
+
+            if (glyph_factory.context && glyph_factory.context.score_div.div_node.attr('larger_accidental_fix')) {
+                glyph_height =
+                    (glyph_name === 'accidentals.doublesharp' ?
+                     this.staff.getHeightOfSpace() :
+                     this.staff.getHeightOfSpace() * 2.75);
+            }
 
             if (this.is_grace) {
 

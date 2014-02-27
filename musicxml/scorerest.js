@@ -36,12 +36,12 @@ ScoreLibrary.Score.Rest.prototype.getNumberOfMultiRest = function() {
     return this.num_of_multi_rest;
 };
 
-ScoreLibrary.Score.Rest.prototype.isGreateThanHalf = function() {
+ScoreLibrary.Score.Rest.prototype.isGreaterThanHalf = function() {
 
     var supperclass = ScoreLibrary.Score.Rest.supperclass;
 
     return (this.getNumberOfMultiRest() > 1 ||
-            supperclass.isGreateThanHalf.call(this));
+            supperclass.isGreaterThanHalf.call(this));
 };
 
 ScoreLibrary.Score.Rest.prototype.defaultPadding = function() {

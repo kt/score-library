@@ -39,7 +39,7 @@ ScoreLibrary.Engraver.Note.prototype.engrave = function(note, renderer) {
     var y = note_renderer.getOrg(fix_org_coord, 'y');
 
     var padding_s = Math.max(note_renderer.padding_s || 0,
-                             (note.isGreateThanHalf() ? 1 : 0));
+                             (note.isGreaterThanHalf() ? 1 : 0));
     var padding_e =
         Math.max(note_renderer.padding_e || 0, (note.isGrace() ? 5 : 1));
 
@@ -49,9 +49,15 @@ ScoreLibrary.Engraver.Note.prototype.engrave = function(note, renderer) {
     var staff_stream =
         renderer.findStaffStream(note.getStaffNumber(), true);
 
+    var shouldFill = false;
+    var shouldExpand = true;
+
+    if (this.context.score_div.div_node.attr('whole_note_fix')) {
+        shouldExpand = (note.isRest() && note.isGreaterThanHalf() ); // only expand if note is a whole bar rest
+    }
     staff_stream.pack(
         note_renderer,
-        true, false, padding_s, padding_e, fix_org_coord);
+        shouldExpand, shouldFill, padding_s, padding_e, fix_org_coord);
 
     var beams = note.getConnectors('beam');
 
@@ -79,7 +85,7 @@ ScoreLibrary.Engraver.Note.prototype.createRenderer = function(note, is_chord) {
         this.engraveFret(note, note_renderer, is_chord);
     }
     else {
-
+        //GLP: attic hack: note_renderer.setExplicit('width', 30);
         this.engraveNote(note, note_renderer, is_chord);
     }
 
@@ -116,9 +122,9 @@ ScoreLibrary.Engraver.Note.prototype.createRenderer = function(note, is_chord) {
         }
     }
 
-    note_renderer.padding_s = (note.isGreateThanHalf() ?
+    note_renderer.padding_s = (note.isGreaterThanHalf() ?
                                max_texts_width * 0.5 : 0);
-    note_renderer.padding_e = (note.isGreateThanHalf() ?
+    note_renderer.padding_e = (note.isGreaterThanHalf() ?
                                max_texts_width * 0.5 : max_texts_width);
 
     note.setRenderer(note_renderer);
