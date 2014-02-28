@@ -181,7 +181,7 @@ ScoreLibrary.Renderer.Glyph.prototype.draw = function(context) {
 
     context.setLineWidth(1);
 
-    //context.setSourceRgb('#000000');
+    context.setSourceRgb('#000000');
 
     context.beginPath();
 

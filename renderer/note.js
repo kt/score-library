@@ -37,21 +37,7 @@ ScoreLibrary.Renderer.Note.prototype.draw = function(context) {
     var note = this.getModel();
     var clef = note.getClef();
 
-    if (note.accidental === undefined
-        && this.children[0].glyph_name.lastIndexOf('accidentals.', 0) == 0) {
-        context.save();
-        context.setSourceRgb('#ff0000');
-        supperclass.draw.call(this, context);
-        context.restore();
-    } else if (note.accidental !== undefined
-               && this.children[0].glyph_name.lastIndexOf('accidentals.', 0) === -1) {
-        context.save();
-        context.setSourceRgb('#0000ff');
-        supperclass.draw.call(this, context);
-        context.restore();
-    } else {
-        supperclass.draw.call(this, context);
-    }
+    supperclass.draw.call(this, context);
 
     if (clef.sign !== 'TAB') {
 
