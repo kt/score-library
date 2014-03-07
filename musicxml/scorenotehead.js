@@ -68,8 +68,8 @@ ScoreLibrary.Score.NoteHead.prototype.getDefaultSize = function(glyph_factory) {
     } break;
 
     default: {
-        if (glyph_factory.context && glyph_factory.context.score_div.div_node.attr('larger_accidental_fix')) {
-            requisition.height = staff.getHeightOfSpace() * 1.2;
+        if (glyph_factory.context && glyph_factory.context.score_div.div_node.attr('larger_note_head_fix')) {
+            requisition.height = staff.getHeightOfSpace() * 1.1;
         } else {
             requisition.height = staff.getHeightOfSpace();
         }

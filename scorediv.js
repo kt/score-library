@@ -287,7 +287,7 @@ ScoreLibrary.ScoreDiv.prototype.createGPToolbar = function() {
         currentFileName = 'click to load a file';
     }
     
-    var button_div = $('<div class="btn btn-primary" id="loadBtn' + this.id + '">' + currentFileName + '</div>');
+    var button_div = $('<div class="btn btn-primary loadButton" id="loadBtn' + this.id + '">' + currentFileName + '</div>');
     button_div.click(function() {
         document.getElementById("upfile" + self.id).click();
     });
